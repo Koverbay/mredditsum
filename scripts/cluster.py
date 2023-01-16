@@ -25,6 +25,12 @@ def main(args):
             sentences.append(comment['body'])
             scores.append(comment['score'])
 
+        if len(sentences) == 1 :
+            clusters = {}
+            clusters['0'] = {'comments': [ids[0]], 'score': scores[0]}
+            thread['clusters_auto'] = clusters
+            continue
+
         embeddings = model.encode(sentences)
         clustering = AgglomerativeClustering(affinity='cosine', n_clusters=None, linkage='average', distance_threshold=.50).fit(embeddings)
         index = 0
