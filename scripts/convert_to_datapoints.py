@@ -19,7 +19,6 @@ def main(args):
 
         doc_imgcap += "Original Post: "
         doc_imgcap += thread['raw_caption']
-        doc_imgcap += f"\nImage: {thread['imgcap_gold']}"
 
         comment_number = 1
         for tl_comment in thread['comments']:
@@ -31,7 +30,6 @@ def main(args):
             comment_number += 1
         
         thread['document'] = doc
-        thread['document_imgcap'] = doc_imgcap
 
         with open(savefile, 'w') as f:
             json.dump(data, f, indent=4)
