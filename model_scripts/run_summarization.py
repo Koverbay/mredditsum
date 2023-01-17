@@ -56,9 +56,6 @@ from trainer import BartBaseTrainer
 
 from scipy.special import softmax
 
-# check_min_version("4.17.0.dev0")
-# require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/summarization/requirements.txt")
-
 logger = logging.getLogger(__name__)
 
 try:
