@@ -369,6 +369,7 @@ def main():
         ignore_mismatched_sizes=True,
     )
 
+
     model.resize_token_embeddings(len(tokenizer))
 
     print(sum(p.numel() for p in model.parameters()))
@@ -396,7 +397,7 @@ def main():
                 f" position encodings. Consider either reducing `--max_source_length` to {model.config.max_position_embeddings} or to automatically "
                 "resize the model's position encodings by passing `--resize_position_embeddings`."
             )
-
+    # t5 alteration
     prefix = data_args.source_prefix if data_args.source_prefix is not None else ""
 
     if training_args.label_smoothing_factor > 0 and not hasattr(
