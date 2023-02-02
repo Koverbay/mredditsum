@@ -1,5 +1,3 @@
-# paper-acl23-multimodalthreadsum
+# Multimodal Summarization of Reddit Threads
 
-test
-
-tf - --source_prefix 'summarize: '
+This is the GitHub repository for the paper "RedMultiSum: Multimodal Summarization of Reddit Threads".
