@@ -2,6 +2,17 @@
 
 This is the GitHub repository for the paper "mRedditSum: Multimodal Summarization of Reddit Threads".
 
+To prepare the data, move your "mredditsum" data split into the "data" folder.
+
+Then, run the following:
+
+```
+python scripts/convert_to_datapoints.py -f data/val.json -s data/val_processed.json
+```
+```
+python scripts/convert_to_txt.py -f data/val_processed.json
+```
+
 To run the models, use run.py under the src file.
 
 Example of running training on VG-T5:
