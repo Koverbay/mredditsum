@@ -13,6 +13,12 @@ python scripts/convert_to_datapoints.py -f data/val.json -s data/val_processed.j
 python scripts/convert_to_txt.py -f data/val_processed.json
 ```
 
+To get the resnext embeddings, move all downloaded images into the data/images folder and run the following:
+
+```
+python scripts/extract_features.py -f data/images
+```
+
 To run the models, use run.py under the src file.
 
 Example of running training on VG-T5:
