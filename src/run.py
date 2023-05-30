@@ -1,3 +1,4 @@
+import os
 import argparse
 from data_preprocess.data_builder import SummaryDataModule
 from models.bart import BartOrigin
@@ -27,6 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('-image_feature_path', default='./dataset/video_action_features/', type=str, help='video features path')
     parser.add_argument('-val_save_file', default='./evaluation/temp_valid_file', type=str, help='the validation results for each epoch')
     parser.add_argument('-test_save_file', default='./evaluation/results/test_summaries.txt', type=str, help='the generated summary for testing data')
+    parser.add_argument('-output_dir', default=None, type=str, help='model checkpoint and log directory')
     parser.add_argument('-log_name', default='multi_modal_bart', type=str, help='lightning log path')
     parser.add_argument('-gpus', default='0,2,3,4', type=str, help='choose gpus to run the code, you can choose multipple gpus')
     parser.add_argument('-batch_size', type=int, default=4, help='batch size for each gpu')
@@ -106,7 +108,7 @@ if __name__ == '__main__':
     # Add to decoding
     parser.add_argument('-fusion_in_decoding', action='store_true')
     parser.add_argument('-vision_use_noise', action='store_true')
-    
+
     # Max_turn_length for HT5
     parser.add_argument('-max_turn_length', type=int, default=50)
 
@@ -115,14 +117,20 @@ if __name__ == '__main__':
     # random seed
     seed_everything(args.random_seed)
 
-    # set logger
-    logger = pl_loggers.TensorBoardLogger(f'./lightning_logs/{args.log_name}')
-
-    # save checkpoint
-    checkpoint_callback = ModelCheckpoint(monitor='validation_Rouge2_one_epoch',
-                                          save_last=True,
-                                          save_top_k=2,
-                                          mode='max',)
+    # set logger and save checkpoint
+    if args.output_dir is None:
+        logger = pl_loggers.TensorBoardLogger(f'./lightning_logs/{args.log_name}')
+        checkpoint_callback = ModelCheckpoint(monitor='validation_Rouge2_one_epoch',
+                                              save_last=True,
+                                              save_top_k=2,
+                                              mode='max',)
+    else:
+        logger = pl_loggers.TensorBoardLogger(os.path.join(args.output_dir, args.log_name))
+        checkpoint_callback = ModelCheckpoint(monitor='validation_Rouge2_one_epoch',
+                                              dirpath=os.path.join(args.output_dir, args.log_name),
+                                              save_last=True,
+                                              save_top_k=2,
+                                              mode='max',)
 
     # make trainer
     if args.checkpoint == 'None':
@@ -168,7 +176,7 @@ if __name__ == '__main__':
 
 
 
-    
+
     # pdb.set_trace()
 
     # Fit the instantiated model to the data

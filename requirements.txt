@@ -214,3 +214,4 @@ xxhash==3.2.0
 yacs==0.1.8
 yarl==1.8.2
 zipp==3.14.0
+bert-score==0.3.13
