@@ -15,6 +15,7 @@ from torchvision.models.detection.backbone_utils import LastLevelMaxPool
 from torchvision.ops.feature_pyramid_network import FeaturePyramidNetwork
 from tqdm import tqdm
 from transformers import AutoImageProcessor, ViTModel
+import pdb
 
 
 def main(args):
@@ -60,6 +61,7 @@ def main(args):
             with torch.no_grad():
                 outputs = model(**inputs)
             output = outputs.last_hidden_state
+            pdb.set_trace()
 
         # Save to file
         filepath = f'../data/image_features/vitb-16/{img_id}.npy'
