@@ -11,7 +11,7 @@ def main(args):
         all_threads = json.load(f)['threads']
 
     # Get all the AMT data together, key'd  by id
-    amt_files = glob.glob("/gallery_tate/keighley.overbay/thread_summarization/annotation_batches/*/*_csum_results.json")
+    amt_files = glob.glob("/gallery_tate/keighley.overbay/thread-summarization/annotation_batches/*/*_csum_results.json")
     all_amt_data = {}
     for amt_file in amt_files:
         with open(amt_file,'r') as f:
@@ -35,10 +35,17 @@ def main(args):
                 if sumorskip.startswith('sum'):
                     raw_csum = all_amt_data[submission_id][f'Answer.clustersum{i}']
                     raw_csums.append(raw_csum)
-            i = 0
-            for cluster_id in thread['clusters_auto']:
+            
+            all_clusters = thread['clusters_auto']
+            clusters_list = []
+            for cluster in all_clusters:
+                clusters_list.append((all_clusters[cluster]['score'], all_clusters[cluster]['comments'], cluster))
+            # Top scoring clusters first
+            clusters_list.sort(reverse=True)
+
+            for i, cluster in enumerate(clusters_list):
                 if sumorskips[i].startswith('sum'):
-                    summed.append(cluster_id)
+                    summed.append(cluster[2])
                 # sumorskipped[cluster_id] = sumorskips[i]
                 i+=1
                 if i > 5:
