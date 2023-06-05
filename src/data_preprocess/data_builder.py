@@ -13,9 +13,9 @@ class OurDataset(Dataset):
         self.args = args
         # initial tokenizer and text
         if 't5' in self.args.model:
-            self.tokenizer = T5Tokenizer.from_pretrained('../../models/t5-base_cnn')
+            self.tokenizer = T5Tokenizer.from_pretrained('/gallery_tate/keighley.overbay/thread-summarization/models/t5-base_cnn')
         else:
-            self.tokenizer = BartTokenizer.from_pretrained('../../models/bart-base_cnn')
+            self.tokenizer = BartTokenizer.from_pretrained('/gallery_tate/keighley.overbay/thread-summarization/models/bart-base_cnn')
         if mode == 'train':
             src_path = args.train_src_path
             tgt_path = args.train_tgt_path
@@ -27,11 +27,22 @@ class OurDataset(Dataset):
             tgt_path = args.test_tgt_path
         self.src = self.file_reader(src_path)
         self.tgt = self.file_reader(tgt_path)
+
+        num_data = len(self.src)
+        # get start & end index
+        if args.split_id < args.num_splits - 1:
+            start_idx = (num_data // args.num_splits) * args.split_id
+            end_idx = start_idx + (num_data // args.num_splits)
+        else:
+            assert args.split_id == args.num_splits - 1
+            start_idx = (num_data // args.num_splits) * args.split_id
+            end_idx = num_data
+
         # pdb.set_trace()
-        self.data_id = [item.split()[0] for item in self.tgt]
-        self.src = [" ".join(item.split()[1:]) for item in self.src]
-        self.tgt = [" ".join(item.split()[1:]) for item in self.tgt]
-        
+        self.data_id = [item.split()[0] for item in self.tgt][start_idx:end_idx]
+        self.src = [" ".join(item.split()[1:]) for item in self.src][start_idx:end_idx]
+        self.tgt = [" ".join(item.split()[1:]) for item in self.tgt][start_idx:end_idx]
+
         if self.args.model == 'hierarchical_t5' or self.args.model =='mmhierarchical_t5':
             split_inputs = [item.split("|||") for item in self.src]
             turns = []
@@ -48,7 +59,7 @@ class OurDataset(Dataset):
                     src_token.extend(input)
                 turns.append(turn)
                 src_tokens.append(src_token)
-            
+
             self.src_ids = src_tokens
             self.tgt_ids = self.tokenize(self.tgt)
             self.src_turns = turns
@@ -107,7 +118,7 @@ class OurDataset(Dataset):
             label_ids = torch.tensor(pad_sents(tgt, -100, max_len=max_output_len)[0])
 
             # return src_ids, decoder_ids, mask, label_ids
-            return src_ids, mask, label_ids
+            return src_ids, mask, label_ids, [x[-1] for x in data]
 
         elif self.args.model == 'multi_modal_bart':
             # rebuild the raw text and truncate to max length
@@ -211,7 +222,7 @@ class OurDataset(Dataset):
                 # image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[:max_img_len]
                 img[i][:image_feature.shape[0]] = image_feature
                 img_len.append(image_feature.shape[0])
-                
+
             img = img[:,:max(img_len)]
 
             # make input mask
@@ -279,7 +290,7 @@ class OurDataset(Dataset):
 
             # return src_ids, decoder_ids, mask, label_ids
             return new_src_ids, mask, label_ids
-        
+
         elif self.args.model == 'mmhierarchical_t5':
             # rebuild the raw text and truncate to max length
             max_input_len = self.args.max_input_len
@@ -312,10 +323,10 @@ class OurDataset(Dataset):
                     image_feature = np.load(self.args.image_feature_path + data_id[i] + '_noise.npy')[:max_img_len]
                 else:
                     image_feature = np.load(self.args.image_feature_path + data_id[i] + '.npy')[:max_img_len]
-                
+
                 img[i][:image_feature.shape[0]] = image_feature
                 img_len.append(image_feature.shape[0])
-                
+
             img = img[:,:max(img_len)]
 
             # make input mask

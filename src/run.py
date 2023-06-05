@@ -49,6 +49,9 @@ if __name__ == '__main__':
     parser.add_argument('-val_check_interval', type=float, default=1, help='do validation for each epoch')
     parser.add_argument('-img_lr_factor', type=float, default=1, help='the learning rate for visual guidance part will times this number')
 
+    parser.add_argument('-split_id', type=int, default=0)
+    parser.add_argument('-num_splits', type=int, default=1)
+
     # About cross-modal attention and fusion
     parser.add_argument('-use_img_trans', action='store_true', help='whether or not to use VTF')
     parser.add_argument('-use_forget_gate', action='store_true', help='whether or not to use forget gate')

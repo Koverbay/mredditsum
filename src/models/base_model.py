@@ -14,7 +14,7 @@ class BaseModel(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         # batch
         # src_ids, decoder_ids, mask, label_ids = batch
-        src_ids, mask, label_ids = batch
+        src_ids, mask, label_ids, _ = batch
 
         # get loss
         loss = self(input_ids=src_ids, attention_mask=mask, labels=label_ids)
