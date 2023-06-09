@@ -130,6 +130,7 @@ class OurDataset(Dataset):
             data_id = [pair[3] for pair in data]
             raw_src = [i[:max_input_len-1] for i in raw_src]
             raw_tgt = [i[:max_output_len-1] for i in raw_tgt]
+            data_id = [i.split('-')[0] for i in data_id]
             src = []
             tgt = []
             # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
@@ -162,7 +163,7 @@ class OurDataset(Dataset):
             # decoder_ids = torch.tensor(pad_sents(decoder_ids, 1, max_len=max_output_len)[0])
             label_ids = torch.tensor(pad_sents(tgt, -100, max_len=max_output_len)[0])
             # return src_ids, decoder_ids, mask, label_ids, torch.tensor(img), img_len
-            return src_ids, mask, label_ids, torch.tensor(img), img_len
+            return src_ids, mask, label_ids, torch.tensor(img), img_len, [x[-1] for x in data]
 
         elif self.args.model == 'text_only_t5':
             # rebuild the raw text and truncate to max length

@@ -63,7 +63,8 @@ def main(args):
         elif args.prompt == 'clusterpred':
             csums = []
             for cluster_id, comments in thread['clusters_auto'].items():
-                csums.append(cluster_id2pred_first_stage['-'.join(comments['comments'])])
+                post_comments_id = '-'.join([thread['submission_id']]+thread['clusters_auto'][cluster_id]['comments'])
+                csums.append(cluster_id2pred_first_stage[post_comments_id])
         else:
             raise ValueError
         processed_thread = {}

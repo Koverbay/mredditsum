@@ -42,26 +42,21 @@ def main(args):
                     ###     doc += " "
                     ###     doc +=  cluster_id2comments[cluster_id]
                     ###     doc += args.separator
-            else:
-                pass
-                ### for tl_comment in thread['comments']:
-                ###     cts = comment_to_string(tl_comment, args.separator) #, str(comment_number))
-                ###     doc += " "
-                ###     doc += cts
-                ###     doc += args.separator
         if args.generate_mode:
             for cluster_id, comments in cluster_id2comments.items():
                 processed_thread = {}
                 processed_thread['document'] = f"{doc} {comments}"
                 processed_thread['summary'] = ''
-                processed_thread['id'] = f"{'-'.join(thread['clusters_auto'][cluster_id]['comments'])}"
+                post_comments_id = '-'.join([thread['submission_id']]+thread['clusters_auto'][cluster_id]['comments'])
+                processed_thread['id'] = f"{post_comments_id}"
                 processed_threads.append(processed_thread)
         else:
             for cluster_id, csum in thread['csums_with_ids'].items():
                 processed_thread = {}
                 processed_thread['document'] = f"{doc} {cluster_id2comments[cluster_id]}"
                 processed_thread['summary'] = csum.replace('\n', ' ').replace('\r', ' ')
-                processed_thread['id'] = f"{'-'.join(thread['clusters_auto'][cluster_id]['comments'])}"
+                post_comments_id = '-'.join([thread['submission_id']]+thread['clusters_auto'][cluster_id]['comments'])
+                processed_thread['id'] = f"{post_comments_id}"
                 processed_threads.append(processed_thread)
         ### processed_thread['document'] = doc
         ### if (args.prompt == 'oponly') or (args.prompt == 'oponlyimgcap'):

@@ -8,7 +8,7 @@ class BartMultiModal(BaseModel):
     def __init__(self, args):
         self.args = args
         super(BartMultiModal, self).__init__(args)
-        self.model = BartForMultiModalGeneration.from_pretrained('../../models/bart-base_cnn',
+        self.model = BartForMultiModalGeneration.from_pretrained('/gallery_tate/keighley.overbay/thread-summarization/models/bart-base_cnn',
                                                                  fusion_layer=args.fusion_layer,
                                                                  use_img_trans=args.use_img_trans,
                                                                  use_forget_gate=args.use_forget_gate,
@@ -16,7 +16,7 @@ class BartMultiModal(BaseModel):
                                                                  dim_common=args.dim_common,
                                                                  n_attn_heads=args.n_attn_heads,
                                                                  local_files_only=True)
-        self.tokenizer = BartTokenizer.from_pretrained('../../models/bart-base_cnn')
+        self.tokenizer = BartTokenizer.from_pretrained('/gallery_tate/keighley.overbay/thread-summarization/models/bart-base_cnn')
         self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
 
     # def forward(self, input_ids, attention_mask, decoder_input_ids, labels, image_features, image_len):
@@ -27,14 +27,14 @@ class BartMultiModal(BaseModel):
                           labels=labels,
                           image_features=image_features,
                           image_len=image_len)[0]
-                          
+
         return loss
 
     def training_step(self, batch, batch_idx):
         # batch
         # src_ids, decoder_ids, mask, label_ids, image_features, image_len = batch
 
-        src_ids, mask, label_ids, image_features, image_len = batch
+        src_ids, mask, label_ids, image_features, image_len, _ = batch
         # get loss
         # loss = self(input_ids=src_ids, attention_mask=mask, decoder_input_ids=decoder_ids, labels=label_ids, image_features=image_features.float(), image_len=image_len)
         loss = self(input_ids=src_ids, attention_mask=mask, labels=label_ids, image_features=image_features.float(), image_len=image_len)
@@ -44,7 +44,7 @@ class BartMultiModal(BaseModel):
 
     def validation_step(self, batch, batch_idx):
         # batch
-        src_ids, mask, label_ids, image_features, image_len = batch
+        src_ids, mask, label_ids, image_features, image_len, data_ids = batch
         # src_ids, decoder_ids, mask, label_ids, image_features, image_len = batch
 
         # get summary
@@ -56,30 +56,37 @@ class BartMultiModal(BaseModel):
                                             no_repeat_ngram_size=self.args.no_repeat_ngram_size,
                                             image_features=image_features.float(),
                                             image_len=image_len)
-        return [summary_ids, label_ids]
+        return [summary_ids, label_ids, data_ids]
 
     def validation_epoch_end(self, outputs):
         summary = []
         reference = []
+        total_data_ids = []
         for item in outputs:
             summary_id = item[0]
             label_id = item[1]
+            data_ids = item[2]
             one_summary = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in summary_id]
             one_reference = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in label_id]
             summary += one_summary
             reference += one_reference
+            total_data_ids += data_ids
         avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, self.rouge)
         self.log('validation_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('validation_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('validation_RougeL_one_epoch', avg_rougeL, on_epoch=True, prog_bar=True, sync_dist=True)
-        self.save_txt(self.args.val_save_file, summary)
-        self.save_txt(self.args.val_save_file+'reference', reference)
+
+        self.save_txt(self.args.val_save_file+'_reference', reference)
+        self.save_txt(self.args.val_save_file+'_summary', summary)
+
+        self.save_txt(self.args.val_save_file+'_reference_with_ids', reference, total_data_ids)
+        self.save_txt(self.args.val_save_file+'_summary_with_ids', summary, total_data_ids)
 
     def test_step(self, batch, batch_idx):
         # batch
         # src_ids, decoder_ids, mask, label_ids, image_features, image_len = batch
 
-        src_ids, mask, label_ids, image_features, image_len = batch
+        src_ids, mask, label_ids, image_features, image_len, data_ids = batch
         # get summary
         summary_ids = self.model.generate(input_ids=src_ids,
                                             attention_mask=mask,
@@ -89,24 +96,36 @@ class BartMultiModal(BaseModel):
                                             no_repeat_ngram_size=self.args.no_repeat_ngram_size,
                                             image_features=image_features.float(),
                                             image_len=image_len)
-        return [summary_ids, label_ids]
+        return [summary_ids, label_ids, data_ids]
 
     def test_epoch_end(self, outputs):
         rouge = load_metric('rouge', experiment_id=self.args.log_name)
         summary = []
         reference = []
+        total_data_ids = []
         for item in outputs:
             summary_id = item[0]
             label_id = item[1]
+            data_ids = item[2]
             one_summary = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in summary_id]
             one_reference = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in label_id]
             summary += one_summary
             reference += one_reference
+            total_data_ids += data_ids
         avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
         self.log('test_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_RougeL_one_epoch', avg_rougeL, on_epoch=True, prog_bar=True, sync_dist=True)
-        self.save_txt(self.args.test_save_file, summary)
+
+        ### self.save_txt(self.args.test_save_file+f'_{self.args.split_id}_{self.args.num_splits}'+'_reference', reference)
+        ### self.save_txt(self.args.test_save_file+f'_{self.args.split_id}_{self.args.num_splits}'+'_summary', summary)
+        self.save_txt(self.args.test_save_file+'_reference', reference)
+        self.save_txt(self.args.test_save_file+'_summary', summary)
+
+        ### self.save_txt(self.args.test_save_file+f'_{self.args.split_id}_{self.args.num_splits}'+'_reference_with_ids', reference, total_data_ids)
+        ### self.save_txt(self.args.test_save_file+f'_{self.args.split_id}_{self.args.num_splits}'+'_summary_with_ids', summary, total_data_ids)
+        self.save_txt(self.args.test_save_file+'_reference_with_ids', reference, total_data_ids)
+        self.save_txt(self.args.test_save_file+'_summary_with_ids', summary, total_data_ids)
 
     def calrouge(self, summary, reference, rouge):
         rouge.add_batch(predictions=summary, references=reference)
@@ -116,8 +135,11 @@ class BartMultiModal(BaseModel):
         RL_F1 = final_results["rougeL"].mid.fmeasure * 100
         return R1_F1, R2_F1, RL_F1
 
-    def save_txt(self, file_name, list_data):
+    def save_txt(self, file_name, list_data, data_ids=None):
         file = open(file_name, 'w')
-        list_data = [item+'\n' for item in list_data]
+        if data_ids is None:
+            list_data = [item+'\n' for item in list_data]
+        else:
+            list_data = [f'{data_ids[i]} '+item+'\n' for i,item in enumerate(list_data)]
         file.writelines(list_data)
         file.close()

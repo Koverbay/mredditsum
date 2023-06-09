@@ -25,9 +25,9 @@ def main(args):
     if args.model == "resnext":
         model = resnext101_32x8d()
         modules = list(model.children())[:-1]
-        feature_extractor = nn.Sequential(*modules)
+        feature_extractor = nn.Sequential(*modules).to('cuda')
         feature_extractor.out_channels = 2048
-    
+
     # TODO: Finish implementing VIT embeddings + run tests
     if args.model == "vit":
         # model = vit_l_16(weights='DEFAULT')
@@ -37,7 +37,7 @@ def main(args):
 
         # image_processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224-in21k")
         image_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-        model = ViTModel.from_pretrained("google/vit-base-patch32-224-in21k")
+        model = ViTModel.from_pretrained("google/vit-base-patch32-224-in21k").to('cuda')
 
 
     # Get list of image id's
@@ -53,21 +53,32 @@ def main(args):
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             ])
-            input_tensor = preprocess(input_image)
+            input_tensor = preprocess(input_image).to('cuda')
             input_batch = input_tensor.unsqueeze(0) # create a mini-batch as expected by the model
             with torch.no_grad():
                 output = feature_extractor(input_batch)
+
+            # Save to file
+            filepath = f'../data/image_features/resnext101/{img_id}.npy'
+            # filepath = f'/gallery_getty/jaewoo.ahn/multimodal-thread-sum/data/image_features/resnext101/{img_id}.npy'
+            np.save(filepath, output.to('cpu').squeeze().unsqueeze(0))
+
         if args.model == "vit":
-            inputs = image_processor(images=input_image, return_tensors="pt")['pixel_values']
+            inputs = image_processor(images=input_image, return_tensors="pt")['pixel_values'].to('cuda')
             with torch.no_grad():
                 outputs = model(pixel_values=inputs)
-            # output = outputs.last_hidden_state # 
+            # output = outputs.last_hidden_state #
             output = outputs[1]
             # pdb.set_trace()
 
-        # Save to file
-        filepath = f'../data/image_features/vitb-32/{img_id}.npy'
-        np.save(filepath, output) #.squeeze().unsqueeze(0))
+            # Save to file
+            filepath = f'../data/image_features/vitb-32/{img_id}.npy'
+            # filepath = f'/gallery_getty/jaewoo.ahn/multimodal-thread-sum/data/image_features/vitb-32/{img_id}.npy'
+            np.save(filepath, output.to('cpu'))
+
+        filepath = f'/gallery_getty/jaewoo.ahn/multimodal-thread-sum/data/image_features/vitb-32/{img_id}.npy'
+        np.save(filepath, output.to('cpu')) #.squeeze().unsqueeze(0))
+
 
 
 if __name__ == "__main__":
