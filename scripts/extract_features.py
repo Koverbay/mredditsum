@@ -14,7 +14,7 @@ from torchvision.models.detection.mask_rcnn import MaskRCNN
 from torchvision.models.detection.backbone_utils import LastLevelMaxPool
 from torchvision.ops.feature_pyramid_network import FeaturePyramidNetwork
 from tqdm import tqdm
-from transformers import AutoImageProcessor, ViTModel
+from transformers import AutoImageProcessor, ViTModel, CLIPProcessor
 import pdb
 
 
@@ -35,8 +35,9 @@ def main(args):
         # feature_extractor = nn.Sequential(*modules)
         # feature_extractor.out_channels = 2048
 
-        image_processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224-in21k")
-        model = ViTModel.from_pretrained("google/vit-base-patch16-224-in21k")
+        # image_processor = AutoImageProcessor.from_pretrained("google/vit-base-patch16-224-in21k")
+        image_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+        model = ViTModel.from_pretrained("google/vit-base-patch32-224-in21k")
 
 
     # Get list of image id's
@@ -57,15 +58,16 @@ def main(args):
             with torch.no_grad():
                 output = feature_extractor(input_batch)
         if args.model == "vit":
-            inputs = image_processor(input_image, return_tensors="pt")
+            inputs = image_processor(images=input_image, return_tensors="pt")['pixel_values']
             with torch.no_grad():
-                outputs = model(**inputs)
-            output = outputs.last_hidden_state
-            pdb.set_trace()
+                outputs = model(pixel_values=inputs)
+            # output = outputs.last_hidden_state # 
+            output = outputs[1]
+            # pdb.set_trace()
 
         # Save to file
-        filepath = f'../data/image_features/vitb-16/{img_id}.npy'
-        np.save(filepath, output.squeeze().unsqueeze(0))
+        filepath = f'../data/image_features/vitb-32/{img_id}.npy'
+        np.save(filepath, output) #.squeeze().unsqueeze(0))
 
 
 if __name__ == "__main__":
