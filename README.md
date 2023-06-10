@@ -7,7 +7,7 @@ To prepare the data, move your "mredditsum" data split into the "data" folder.
 Then, run the following:
 
 ```
-python scripts/convert_to_datapoints.py -f data/val.json -s data/val_processed.json
+python scripts/convert_to_datapoints.py -f data/val.json -s data/val_processed.json -sep " "
 ```
 ```
 python scripts/convert_to_txt.py -f data/val_processed.json
@@ -55,7 +55,7 @@ python src/run.py \
         -checkpoint=None \
         -use_forget_gate \
         -cross_attn_type=0 \
-        -use_img_trans 
+        -use_img_trans
 ```
 
 Example of running regular text-only BART:
