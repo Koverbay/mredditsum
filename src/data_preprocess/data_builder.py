@@ -134,18 +134,18 @@ class OurDataset(Dataset):
             src = []
             tgt = []
             # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
-            img = np.zeros([len(raw_src), self.args.max_img_len, 2048])
-            # NEW VERSION: FOR 197x768 VIT-B-16 EMBEDS
-            # img = np.zeros([len(raw_src), self.args.max_img_len, 768])
+            # img = np.zeros([len(raw_src), self.args.max_img_len, 2048])
+            # NEW VERSION: FOR 1x768 VIT-B-16 EMBEDS
+            img = np.zeros([len(raw_src), self.args.max_img_len, 768])
             img_len = []
             # remove blank data
             for i in range(len(raw_src)):
                 src.append(raw_src[i])
                 tgt.append(raw_tgt[i])
                 # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
-                image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[0]
+                # image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[0]
                 # NEW VERSION: FOR 197x768 VIT-B-16 EMBEDS
-                # image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy').squeeze()
+                image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[:max_img_len]
 
                 img[i][:image_feature.shape[0]] = image_feature
                 # print(img[i])
@@ -207,9 +207,9 @@ class OurDataset(Dataset):
             src = []
             tgt = []
             # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
-            img = np.zeros([len(raw_src), self.args.max_img_len, 2048])
+            # img = np.zeros([len(raw_src), self.args.max_img_len, 2048])
             # NEW VERSION: FOR 197x768 VIT-B-16 EMBEDS
-            # img = np.zeros([len(raw_src), self.args.max_img_len, 768])
+            img = np.zeros([len(raw_src), self.args.max_img_len, 768])
             img_len = []
             # remove blank data
             for i in range(len(raw_src)):
@@ -218,9 +218,9 @@ class OurDataset(Dataset):
                 if self.args.vision_use_noise:
                     image_feature = np.load(self.args.image_feature_path + data_id[i] + '_noise.npy')[:max_img_len]
                 else:
-                    image_feature = np.load(self.args.image_feature_path + data_id[i] + '.npy')[:max_img_len]
+                    # image_feature = np.load(self.args.image_feature_path + data_id[i] + '.npy')[:max_img_len]
                     # NEW VERSION: FOR 197x768 VIT-B-16 EMBEDS
-                    # image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy').squeeze()
+                    image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[:max_img_len]
                 # image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[:max_img_len]
                 img[i][:image_feature.shape[0]] = image_feature
                 img_len.append(image_feature.shape[0])
@@ -303,7 +303,7 @@ class OurDataset(Dataset):
             raw_turns = [pair[2] for pair in data]
             data_id = [pair[3] for pair in data]
 
-            img = np.zeros([len(raw_src), self.args.max_img_len, 2048])
+            img = np.zeros([len(raw_src), self.args.max_img_len, 768])
             img_len = []
             # print(f"raw src {raw_src}")
             # print(f"raw ttgt {raw_tgt}")

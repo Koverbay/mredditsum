@@ -2235,14 +2235,18 @@ class BartEncoder(BartPretrainedModel):
 
         if self.use_img_trans:
             # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
-            self.img_transformer = ImageTransformerEncoder(d_model=2048, num_layers=4, num_heads=8, dim_feedforward=2048)
+            # self.img_transformer = ImageTransformerEncoder(d_model=2048, num_layers=4, num_heads=8, dim_feedforward=2048)
 
+            # UPDATED VERSION: FOR 1 x 768 VIT EMBEDS
             # self.img_transformer = ImageTransformerEncoder(d_model=768, num_layers=4, num_heads=8, dim_feedforward=768)
 
         # Some global variables
-        # visual_feature_dim = 768
+
         # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
-        visual_feature_dim = 2048
+        # visual_feature_dim = 2048
+
+        # UPDATED VERSION: FOR 1 x 768 VIT EMBEDS
+        visual_feature_dim = 768
         text_feature_dim = embed_dim # 768
 
         if cross_attn_type == 0:

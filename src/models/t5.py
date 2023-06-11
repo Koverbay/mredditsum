@@ -6,6 +6,7 @@ from models.modeling_ht5 import T5ForHierarchicalGeneration
 from models.modeling_vght5 import T5ForMMHierarchicalGeneration
 from datasets import load_metric
 import pdb
+from rouge import Rouge
 
 class T5Origin(BaseModel):
 
@@ -14,7 +15,8 @@ class T5Origin(BaseModel):
         super(T5Origin, self).__init__(args)
         self.model = T5ForConditionalGeneration.from_pretrained('/gallery_tate/keighley.overbay/thread-summarization/models/t5-base_cnn', local_files_only=True)
         self.tokenizer = T5Tokenizer.from_pretrained('/gallery_tate/keighley.overbay/thread-summarization/models/t5-base_cnn', local_files_only=True)
-        self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        # self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        self.rouge = Rouge()
 
     # def forward(self, input_ids, attention_mask, decoder_input_ids, labels):
     def forward(self, input_ids, attention_mask, labels):
@@ -74,7 +76,7 @@ class T5Origin(BaseModel):
         return [summary_ids, label_ids, data_ids]
 
     def test_epoch_end(self, outputs):
-        rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        # rouge = load_metric('rouge', experiment_id=self.args.log_name)
         summary = []
         reference = []
         total_data_ids = []
@@ -86,8 +88,14 @@ class T5Origin(BaseModel):
             one_reference = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in label_id]
             summary += one_summary
             reference += one_reference
+<<<<<<< HEAD
             total_data_ids += data_ids
         avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
+||||||| parent of 5dd96b1 (updated eval, vit features)
+        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
+=======
+        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, self.rouge)
+>>>>>>> 5dd96b1 (updated eval, vit features)
         self.log('test_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_RougeL_one_epoch', avg_rougeL, on_epoch=True, prog_bar=True, sync_dist=True)
@@ -103,11 +111,16 @@ class T5Origin(BaseModel):
         self.save_txt(self.args.test_save_file+'_summary_with_ids', summary, total_data_ids)
 
     def calrouge(self, summary, reference, rouge):
-        rouge.add_batch(predictions=summary, references=reference)
-        final_results = rouge.compute(rouge_types=["rouge1", "rouge2", "rougeL"])
-        R1_F1 = final_results["rouge1"].mid.fmeasure * 100
-        R2_F1 = final_results["rouge2"].mid.fmeasure * 100
-        RL_F1 = final_results["rougeL"].mid.fmeasure * 100
+        # rouge.add_batch(predictions=summary, references=reference)
+        # final_results = rouge.compute(rouge_types=["rouge1", "rouge2", "rougeL"])
+        # R1_F1 = final_results["rouge1"].mid.fmeasure * 100
+        # R2_F1 = final_results["rouge2"].mid.fmeasure * 100
+        # RL_F1 = final_results["rougeL"].mid.fmeasure * 100
+        # return R1_F1, R2_F1, RL_F1
+        scores = rouge.get_scores(hyps=summary,refs=reference,avg=True)
+        R1_F1 = scores['rouge-1']['f'] * 100
+        R2_F1 = scores['rouge-2']['f'] * 100
+        RL_F1 = scores['rouge-l']['f'] * 100
         return R1_F1, R2_F1, RL_F1
 
     def save_txt(self, file_name, list_data, data_ids=None):
@@ -132,8 +145,17 @@ class T5MultiModal(BaseModel):
                                                                  cross_attn_type=args.cross_attn_type,
                                                                  dim_common=args.dim_common,
                                                                  n_attn_heads=args.n_attn_heads)
+<<<<<<< HEAD
         self.tokenizer = T5Tokenizer.from_pretrained('/gallery_tate/keighley.overbay/thread-summarization/models/t5-base_cnn/')
         self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
+||||||| parent of 5dd96b1 (updated eval, vit features)
+        self.tokenizer = T5Tokenizer.from_pretrained('../../models/t5-base_cnn')
+        self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
+=======
+        self.tokenizer = T5Tokenizer.from_pretrained('../../models/t5-base_cnn')
+        # self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        self.rouge = Rouge()
+>>>>>>> 5dd96b1 (updated eval, vit features)
 
     # def forward(self, input_ids, attention_mask, decoder_input_ids, labels, image_features, image_len):
     def forward(self, input_ids, attention_mask, labels, image_features, image_len):
@@ -211,7 +233,7 @@ class T5MultiModal(BaseModel):
         return [summary_ids, label_ids, data_ids]
 
     def test_epoch_end(self, outputs):
-        rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        # rouge = load_metric('rouge', experiment_id=self.args.log_name)
         summary = []
         reference = []
         total_data_ids = []
@@ -223,8 +245,14 @@ class T5MultiModal(BaseModel):
             one_reference = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in label_id]
             summary += one_summary
             reference += one_reference
+<<<<<<< HEAD
             total_data_ids += data_ids
         avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
+||||||| parent of 5dd96b1 (updated eval, vit features)
+        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
+=======
+        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, self.rouge)
+>>>>>>> 5dd96b1 (updated eval, vit features)
         self.log('test_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_RougeL_one_epoch', avg_rougeL, on_epoch=True, prog_bar=True, sync_dist=True)
@@ -240,11 +268,16 @@ class T5MultiModal(BaseModel):
         self.save_txt(self.args.test_save_file+'_summary_with_ids', summary, total_data_ids)
 
     def calrouge(self, summary, reference, rouge):
-        rouge.add_batch(predictions=summary, references=reference)
-        final_results = rouge.compute(rouge_types=["rouge1", "rouge2", "rougeL"])
-        R1_F1 = final_results["rouge1"].mid.fmeasure * 100
-        R2_F1 = final_results["rouge2"].mid.fmeasure * 100
-        RL_F1 = final_results["rougeL"].mid.fmeasure * 100
+        # rouge.add_batch(predictions=summary, references=reference)
+        # final_results = rouge.compute(rouge_types=["rouge1", "rouge2", "rougeL"])
+        # R1_F1 = final_results["rouge1"].mid.fmeasure * 100
+        # R2_F1 = final_results["rouge2"].mid.fmeasure * 100
+        # RL_F1 = final_results["rougeL"].mid.fmeasure * 100
+        # return R1_F1, R2_F1, RL_F1
+        scores = rouge.get_scores(hyps=summary,refs=reference,avg=True)
+        R1_F1 = scores['rouge-1']['f'] * 100
+        R2_F1 = scores['rouge-2']['f'] * 100
+        RL_F1 = scores['rouge-l']['f'] * 100
         return R1_F1, R2_F1, RL_F1
 
     def save_txt(self, file_name, list_data, data_ids=None):
@@ -266,7 +299,8 @@ class T5Hierarchical(BaseModel):
                                                                 memory_length=args.max_turn_length,
                                                                 local_files_only=True)
         self.tokenizer = T5Tokenizer.from_pretrained('../../models/t5-base_cnn')
-        self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        # self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        self.rouge = Rouge()
 
     def forward(self, input_ids, attention_mask, labels):
 
@@ -325,7 +359,7 @@ class T5Hierarchical(BaseModel):
         return [summary_ids, label_ids]
 
     def test_epoch_end(self, outputs):
-        rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        # rouge = load_metric('rouge', experiment_id=self.args.log_name)
         summary = []
         reference = []
         for item in outputs:
@@ -335,18 +369,23 @@ class T5Hierarchical(BaseModel):
             one_reference = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in label_id]
             summary += one_summary
             reference += one_reference
-        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
+        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, self.rouge)
         self.log('test_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_RougeL_one_epoch', avg_rougeL, on_epoch=True, prog_bar=True, sync_dist=True)
         self.save_txt(self.args.test_save_file, summary)
 
     def calrouge(self, summary, reference, rouge):
-        rouge.add_batch(predictions=summary, references=reference)
-        final_results = rouge.compute(rouge_types=["rouge1", "rouge2", "rougeL"])
-        R1_F1 = final_results["rouge1"].mid.fmeasure * 100
-        R2_F1 = final_results["rouge2"].mid.fmeasure * 100
-        RL_F1 = final_results["rougeL"].mid.fmeasure * 100
+        # rouge.add_batch(predictions=summary, references=reference)
+        # final_results = rouge.compute(rouge_types=["rouge1", "rouge2", "rougeL"])
+        # R1_F1 = final_results["rouge1"].mid.fmeasure * 100
+        # R2_F1 = final_results["rouge2"].mid.fmeasure * 100
+        # RL_F1 = final_results["rougeL"].mid.fmeasure * 100
+        # return R1_F1, R2_F1, RL_F1
+        scores = rouge.get_scores(hyps=summary,refs=reference,avg=True)
+        R1_F1 = scores['rouge-1']['f'] * 100
+        R2_F1 = scores['rouge-2']['f'] * 100
+        RL_F1 = scores['rouge-l']['f'] * 100
         return R1_F1, R2_F1, RL_F1
 
     def save_txt(self, file_name, list_data):
@@ -372,7 +411,8 @@ class T5MMHierarchical(BaseModel):
                                                                  n_attn_heads=args.n_attn_heads,
                                                                 local_files_only=True)
         self.tokenizer = T5Tokenizer.from_pretrained('../../models/t5-base_cnn')
-        self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        # self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        self.rouge = Rouge()
 
     def forward(self, input_ids, attention_mask, labels,image_features, image_len):
 
@@ -444,7 +484,7 @@ class T5MMHierarchical(BaseModel):
         return [summary_ids, label_ids]
 
     def test_epoch_end(self, outputs):
-        rouge = load_metric('rouge', experiment_id=self.args.log_name)
+        # rouge = load_metric('rouge', experiment_id=self.args.log_name)
         summary = []
         reference = []
         for item in outputs:
@@ -454,18 +494,23 @@ class T5MMHierarchical(BaseModel):
             one_reference = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in label_id]
             summary += one_summary
             reference += one_reference
-        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
+        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, self.rouge)
         self.log('test_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_RougeL_one_epoch', avg_rougeL, on_epoch=True, prog_bar=True, sync_dist=True)
         self.save_txt(self.args.test_save_file, summary)
 
     def calrouge(self, summary, reference, rouge):
-        rouge.add_batch(predictions=summary, references=reference)
-        final_results = rouge.compute(rouge_types=["rouge1", "rouge2", "rougeL"])
-        R1_F1 = final_results["rouge1"].mid.fmeasure * 100
-        R2_F1 = final_results["rouge2"].mid.fmeasure * 100
-        RL_F1 = final_results["rougeL"].mid.fmeasure * 100
+        # rouge.add_batch(predictions=summary, references=reference)
+        # final_results = rouge.compute(rouge_types=["rouge1", "rouge2", "rougeL"])
+        # R1_F1 = final_results["rouge1"].mid.fmeasure * 100
+        # R2_F1 = final_results["rouge2"].mid.fmeasure * 100
+        # RL_F1 = final_results["rougeL"].mid.fmeasure * 100
+        # return R1_F1, R2_F1, RL_F1
+        scores = rouge.get_scores(hyps=summary,refs=reference,avg=True)
+        R1_F1 = scores['rouge-1']['f'] * 100
+        R2_F1 = scores['rouge-2']['f'] * 100
+        RL_F1 = scores['rouge-l']['f'] * 100
         return R1_F1, R2_F1, RL_F1
 
     def save_txt(self, file_name, list_data):

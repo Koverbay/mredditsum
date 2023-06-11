@@ -890,11 +890,14 @@ class T5Stack(T5PreTrainedModel):
         self.cross_attn_type = cross_attn_type
         if not self.is_decoder:
             if self.use_img_trans:
-                self.img_transformer = ImageTransformerEncoder(d_model=2048, num_layers=4, num_heads=8, dim_feedforward=2048)
-                # self.img_transformer = ImageTransformerEncoder(d_model=768, num_layers=4, num_heads=8, dim_feedforward=768)
+                # ORIGINAL VERSION: For 1x2048 RESNEXT features
+                # self.img_transformer = ImageTransformerEncoder(d_model=2048, num_layers=4, num_heads=8, dim_feedforward=2048)
+                # UPDATED VERSION: For 1x768 VIT features
+                self.img_transformer = ImageTransformerEncoder(d_model=768, num_layers=4, num_heads=8, dim_feedforward=768)
 
             # Some global variables
-            visual_feature_dim = 2048
+            # visual_feature_dim = 2048
+            visual_feature_dim = 768
             text_feature_dim = 768 # 768
 
             if cross_attn_type == 0:

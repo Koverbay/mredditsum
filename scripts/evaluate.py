@@ -7,7 +7,7 @@ def main(args):
         # refs = f.readlines()
     files_rouge = FilesRouge()
     print("Computing ROUGE score...")
-    scores = files_rouge.get_scores(args.reference, args.hypothesis, avg=True)
+    scores = files_rouge.get_scores(ref_path=args.reference, hyp_path=args.hypothesis, avg=True)
     print(f"R1: {scores['rouge-1']['f']} \n R2: {scores['rouge-2']['f']} \n RL: {scores['rouge-l']['f']}")
     print("Computing BertScore...")
     subprocess.run(f"bert-score -r {args.reference} -c {args.hypothesis} --lang en --rescale_with_baseline" ,shell=True)
