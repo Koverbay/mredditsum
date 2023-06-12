@@ -1835,7 +1835,7 @@ class BartAttention(nn.Module):
 
 
 class BartEncoderLayer(nn.Module):
-    
+
     def __init__(self, config: BartConfig):
         super().__init__()
         self.embed_dim = config.d_model
@@ -1853,7 +1853,7 @@ class BartEncoderLayer(nn.Module):
         self.final_layer_norm = nn.LayerNorm(self.embed_dim)
 
 
-        
+
 
     def forward(
         self,
@@ -2238,7 +2238,7 @@ class BartEncoder(BartPretrainedModel):
             # self.img_transformer = ImageTransformerEncoder(d_model=2048, num_layers=4, num_heads=8, dim_feedforward=2048)
 
             # UPDATED VERSION: FOR 1 x 768 VIT EMBEDS
-            # self.img_transformer = ImageTransformerEncoder(d_model=768, num_layers=4, num_heads=8, dim_feedforward=768)
+            self.img_transformer = ImageTransformerEncoder(d_model=768, num_layers=4, num_heads=8, dim_feedforward=768)
 
         # Some global variables
 
@@ -2957,7 +2957,7 @@ class BartForMultiModalGeneration(BartPretrainedModel):
     def __init__(self, config: BartConfig, fusion_layer=None, use_img_trans=None, use_forget_gate=None, cross_attn_type=None, dim_common=256, n_attn_heads=1):
         super().__init__(config)
         self.model = BartModel(config, fusion_layer, use_img_trans, use_forget_gate, cross_attn_type, dim_common, n_attn_heads)
-        
+
         self.register_buffer("final_logits_bias", torch.zeros((1, self.model.shared.num_embeddings)))
         self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)
 

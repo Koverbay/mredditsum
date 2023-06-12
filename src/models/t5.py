@@ -88,14 +88,8 @@ class T5Origin(BaseModel):
             one_reference = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in label_id]
             summary += one_summary
             reference += one_reference
-<<<<<<< HEAD
             total_data_ids += data_ids
-        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
-||||||| parent of 5dd96b1 (updated eval, vit features)
-        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
-=======
         avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, self.rouge)
->>>>>>> 5dd96b1 (updated eval, vit features)
         self.log('test_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_RougeL_one_epoch', avg_rougeL, on_epoch=True, prog_bar=True, sync_dist=True)
@@ -145,17 +139,8 @@ class T5MultiModal(BaseModel):
                                                                  cross_attn_type=args.cross_attn_type,
                                                                  dim_common=args.dim_common,
                                                                  n_attn_heads=args.n_attn_heads)
-<<<<<<< HEAD
         self.tokenizer = T5Tokenizer.from_pretrained('/gallery_tate/keighley.overbay/thread-summarization/models/t5-base_cnn/')
-        self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
-||||||| parent of 5dd96b1 (updated eval, vit features)
-        self.tokenizer = T5Tokenizer.from_pretrained('../../models/t5-base_cnn')
-        self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
-=======
-        self.tokenizer = T5Tokenizer.from_pretrained('../../models/t5-base_cnn')
-        # self.rouge = load_metric('rouge', experiment_id=self.args.log_name)
         self.rouge = Rouge()
->>>>>>> 5dd96b1 (updated eval, vit features)
 
     # def forward(self, input_ids, attention_mask, decoder_input_ids, labels, image_features, image_len):
     def forward(self, input_ids, attention_mask, labels, image_features, image_len):
@@ -245,14 +230,8 @@ class T5MultiModal(BaseModel):
             one_reference = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in label_id]
             summary += one_summary
             reference += one_reference
-<<<<<<< HEAD
             total_data_ids += data_ids
-        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
-||||||| parent of 5dd96b1 (updated eval, vit features)
-        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
-=======
         avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, self.rouge)
->>>>>>> 5dd96b1 (updated eval, vit features)
         self.log('test_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_RougeL_one_epoch', avg_rougeL, on_epoch=True, prog_bar=True, sync_dist=True)

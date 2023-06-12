@@ -113,14 +113,8 @@ class BartMultiModal(BaseModel):
             one_reference = [self.tokenizer.decode([i for i in g if i != -100], skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in label_id]
             summary += one_summary
             reference += one_reference
-<<<<<<< HEAD
             total_data_ids += data_ids
-        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
-||||||| parent of 5dd96b1 (updated eval, vit features)
-        avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, rouge)
-=======
         avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, self.rouge)
->>>>>>> 5dd96b1 (updated eval, vit features)
         self.log('test_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_RougeL_one_epoch', avg_rougeL, on_epoch=True, prog_bar=True, sync_dist=True)
