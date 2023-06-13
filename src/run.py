@@ -125,14 +125,14 @@ if __name__ == '__main__':
         logger = pl_loggers.TensorBoardLogger(f'./lightning_logs/{args.log_name}')
         checkpoint_callback = ModelCheckpoint(monitor='validation_Rouge2_one_epoch',
                                               save_last=True,
-                                              save_top_k=2,
+                                              save_top_k=1,
                                               mode='max',)
     else:
         logger = pl_loggers.TensorBoardLogger(os.path.join(args.output_dir, args.log_name))
         checkpoint_callback = ModelCheckpoint(monitor='validation_Rouge2_one_epoch',
                                               dirpath=os.path.join(args.output_dir, args.log_name),
                                               save_last=True,
-                                              save_top_k=2,
+                                              save_top_k=1,
                                               mode='max',)
 
     # make trainer
