@@ -2198,7 +2198,7 @@ class BartEncoder(BartPretrainedModel):
         embed_tokens (nn.Embedding): output embedding
     """
     def __init__(self, config: BartConfig, embed_tokens: Optional[nn.Embedding] = None,
-                 fusion_layer=None, use_img_trans=None, use_forget_gate=None, cross_attn_type=None, dim_common=256, n_attn_heads=1):
+                 fusion_layer=None, use_img_trans=None, use_forget_gate=None, cross_attn_type=None, dim_common=256, n_attn_heads=1, image_encoder='vit'):
     # def __init__(self, config: BartConfig, embed_tokens: Optional[nn.Embedding] = None):
         super().__init__(config)
 
@@ -2232,21 +2232,20 @@ class BartEncoder(BartPretrainedModel):
         self.use_forget_gate = use_forget_gate
         self.use_img_trans = use_img_trans
         self.cross_attn_type = cross_attn_type
+        self.image_encoder = image_encoder
 
         if self.use_img_trans:
-            # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
-            # self.img_transformer = ImageTransformerEncoder(d_model=2048, num_layers=4, num_heads=8, dim_feedforward=2048)
+            if self.image_encoder == 'resnext':
+                # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
+                self.img_transformer = ImageTransformerEncoder(d_model=2048, num_layers=4, num_heads=8, dim_feedforward=2048)
+                visual_feature_dim = 2048
+            elif self.image_encoder == 'vit':
+                # UPDATED VERSION: FOR 1 x 768 VIT EMBEDS
+                self.img_transformer = ImageTransformerEncoder(d_model=768, num_layers=4, num_heads=8, dim_feedforward=768)
+                visual_feature_dim = 768
+            else:
+                raise NotImplementedError
 
-            # UPDATED VERSION: FOR 1 x 768 VIT EMBEDS
-            self.img_transformer = ImageTransformerEncoder(d_model=768, num_layers=4, num_heads=8, dim_feedforward=768)
-
-        # Some global variables
-
-        # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
-        # visual_feature_dim = 2048
-
-        # UPDATED VERSION: FOR 1 x 768 VIT EMBEDS
-        visual_feature_dim = 768
         text_feature_dim = embed_dim # 768
 
         if cross_attn_type == 0:
@@ -2811,7 +2810,7 @@ class BartModel(BartPretrainedModel):
     _keys_to_ignore_on_load_missing = ["encoder.embed_tokens.weight", "decoder.embed_tokens.weight"]
 
     def __init__(self, config: BartConfig,
-                 fusion_layer=None, use_img_trans=None, use_forget_gate=None, cross_attn_type=None, dim_common=256, n_attn_heads=1):
+                 fusion_layer=None, use_img_trans=None, use_forget_gate=None, cross_attn_type=None, dim_common=256, n_attn_heads=1, image_encoder='vit'):
     # def __init__(self, config: BartConfig):
         super().__init__(config)
 
@@ -2820,7 +2819,7 @@ class BartModel(BartPretrainedModel):
 
         # self.encoder = BartEncoder(config, self.shared)
         self.encoder = BartEncoder(config, self.shared,
-                                   fusion_layer, use_img_trans, use_forget_gate, cross_attn_type, dim_common, n_attn_heads)
+                                   fusion_layer, use_img_trans, use_forget_gate, cross_attn_type, dim_common, n_attn_heads, image_encoder)
 
         self.decoder = BartDecoder(config, self.shared)
 
@@ -2954,9 +2953,9 @@ class BartForMultiModalGeneration(BartPretrainedModel):
     # def __init__(self, config: BartConfig):
     #     super().__init__(config)
         # self.model = BartModel(config)
-    def __init__(self, config: BartConfig, fusion_layer=None, use_img_trans=None, use_forget_gate=None, cross_attn_type=None, dim_common=256, n_attn_heads=1):
+    def __init__(self, config: BartConfig, fusion_layer=None, use_img_trans=None, use_forget_gate=None, cross_attn_type=None, dim_common=256, n_attn_heads=1, image_encoder='vit'):
         super().__init__(config)
-        self.model = BartModel(config, fusion_layer, use_img_trans, use_forget_gate, cross_attn_type, dim_common, n_attn_heads)
+        self.model = BartModel(config, fusion_layer, use_img_trans, use_forget_gate, cross_attn_type, dim_common, n_attn_heads, image_encoder)
 
         self.register_buffer("final_logits_bias", torch.zeros((1, self.model.shared.num_embeddings)))
         self.lm_head = nn.Linear(config.d_model, self.model.shared.num_embeddings, bias=False)

@@ -145,6 +145,7 @@ class T5MultiModal(BaseModel):
                                                                  use_forget_gate=args.use_forget_gate,
                                                                  cross_attn_type=args.cross_attn_type,
                                                                  dim_common=args.dim_common,
+                                                                 image_encoder=args.image_encoder,
                                                                  n_attn_heads=args.n_attn_heads)
         self.tokenizer = T5Tokenizer.from_pretrained('/gallery_tate/keighley.overbay/thread-summarization/models/t5-base_cnn/')
         self.rouge = Rouge()

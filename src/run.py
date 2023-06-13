@@ -26,6 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('-test_src_path', default='./dataset/sum_devtest/tran.tok.txt', type=str, help='testing input data path (dialogue)')
     parser.add_argument('-test_tgt_path', default='./dataset/sum_devtest/desc.tok.txt', type=str, help='testing output data path (summary)')
     parser.add_argument('-image_feature_path', default='./dataset/video_action_features/', type=str, help='video features path')
+    parser.add_argument('-image_encoder', default="vit", choices=['resnext','vit'])
     parser.add_argument('-val_save_file', default='./evaluation/temp_valid_file', type=str, help='the validation results for each epoch')
     parser.add_argument('-test_save_file', default='./evaluation/results/test_summaries.txt', type=str, help='the generated summary for testing data')
     parser.add_argument('-output_dir', default=None, type=str, help='model checkpoint and log directory')

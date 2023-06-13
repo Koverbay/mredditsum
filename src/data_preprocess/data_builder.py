@@ -133,19 +133,29 @@ class OurDataset(Dataset):
             data_id = [i.split('-')[0] for i in data_id]
             src = []
             tgt = []
-            # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
-            # img = np.zeros([len(raw_src), self.args.max_img_len, 2048])
-            # NEW VERSION: FOR 1x768 VIT-B-16 EMBEDS
-            img = np.zeros([len(raw_src), self.args.max_img_len, 768])
+            if self.args.image_encoder == 'resnext':
+                # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
+                img = np.zeros([len(raw_src), self.args.max_img_len, 2048])
+            elif self.args.image_encoder == 'vit':
+                # NEW VERSION: FOR 1x768 VIT-B-16 EMBEDS
+                img = np.zeros([len(raw_src), self.args.max_img_len, 768])
+            else:
+                raise ValueError
+
             img_len = []
             # remove blank data
             for i in range(len(raw_src)):
                 src.append(raw_src[i])
                 tgt.append(raw_tgt[i])
-                # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
-                # image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[0]
-                # NEW VERSION: FOR 197x768 VIT-B-16 EMBEDS
-                image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[:max_img_len]
+
+                if self.args.image_encoder == 'resnext':
+                    # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
+                    image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[0]
+                elif self.args.image_encoder == 'vit':
+                    # NEW VERSION: FOR 1x768 VIT-B-16 EMBEDS
+                    image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[:max_img_len]
+                else:
+                    raise ValueError
 
                 img[i][:image_feature.shape[0]] = image_feature
                 # print(img[i])
@@ -206,10 +216,15 @@ class OurDataset(Dataset):
             data_id = [i.split('-')[0] for i in data_id]
             src = []
             tgt = []
-            # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
-            # img = np.zeros([len(raw_src), self.args.max_img_len, 2048])
-            # NEW VERSION: FOR 197x768 VIT-B-16 EMBEDS
-            img = np.zeros([len(raw_src), self.args.max_img_len, 768])
+
+            if self.args.image_encoder == 'resnext':
+                # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
+                img = np.zeros([len(raw_src), self.args.max_img_len, 2048])
+            elif self.args.image_encoder == 'vit':
+                # NEW VERSION: FOR 1x768 VIT-B-16 EMBEDS
+                img = np.zeros([len(raw_src), self.args.max_img_len, 768])
+            else:
+                raise ValueError
             img_len = []
             # remove blank data
             for i in range(len(raw_src)):
@@ -218,10 +233,15 @@ class OurDataset(Dataset):
                 if self.args.vision_use_noise:
                     image_feature = np.load(self.args.image_feature_path + data_id[i] + '_noise.npy')[:max_img_len]
                 else:
-                    # image_feature = np.load(self.args.image_feature_path + data_id[i] + '.npy')[:max_img_len]
-                    # NEW VERSION: FOR 197x768 VIT-B-16 EMBEDS
-                    image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[:max_img_len]
-                # image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[:max_img_len]
+                    if self.args.image_encoder == 'resnext':
+                        # ORIGINAL VERSION: FOR 1 x 2048 RESNEXT EMBEDS
+                        image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[:max_img_len]
+                    elif self.args.image_encoder == 'vit':
+                        # NEW VERSION: FOR 1x768 VIT-B-16 EMBEDS
+                        image_feature = np.load(self.args.image_feature_path + data_id[i]+ '.npy')[:max_img_len]
+                    else:
+                        raise ValueError
+
                 img[i][:image_feature.shape[0]] = image_feature
                 img_len.append(image_feature.shape[0])
 
@@ -294,6 +314,7 @@ class OurDataset(Dataset):
             return new_src_ids, mask, label_ids
 
         elif self.args.model == 'mmhierarchical_t5':
+            raise NotImplementedError
             # rebuild the raw text and truncate to max length
             max_input_len = self.args.max_input_len
             max_output_len = self.args.max_output_len

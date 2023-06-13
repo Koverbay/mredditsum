@@ -105,6 +105,13 @@ class BartOrigin(BaseModel):
         self.save_txt(self.args.test_save_file+'_summary_with_ids', summary, total_data_ids)
 
     def calrouge(self, summary, reference, rouge):
+        new_reference = []
+        for r in reference:
+            if r == '':
+                print(f'Detected blank target summary')
+                new_reference.append('{}')
+            else:
+                new_reference.append(r)
         # rouge.add_batch(predictions=summary, references=reference)
         # final_results = rouge.compute(rouge_types=["rouge1", "rouge2", "rougeL"])
         # R1_F1 = final_results["rouge1"].mid.fmeasure * 100
@@ -112,7 +119,7 @@ class BartOrigin(BaseModel):
         # RL_F1 = final_results["rougeL"].mid.fmeasure * 100
         # return R1_F1, R2_F1, RL_F1
 
-        scores = rouge.get_scores(hyps=summary,refs=reference,avg=True)
+        scores = rouge.get_scores(hyps=summary,refs=new_reference,avg=True)
         R1_F1 = scores['rouge-1']['f'] * 100
         R2_F1 = scores['rouge-2']['f'] * 100
         RL_F1 = scores['rouge-l']['f'] * 100
