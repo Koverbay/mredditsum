@@ -902,6 +902,13 @@ class T5Stack(T5PreTrainedModel):
                     visual_feature_dim = 768
                 else:
                     raise NotImplementedError
+            else:
+                if self.image_encoder == 'resnext':
+                    visual_feature_dim = 2048
+                elif self.image_encoder == 'vit':
+                    visual_feature_dim = 768
+                else:
+                    raise NotImplementedError
 
             # Some global variables
             text_feature_dim = 768 # 768

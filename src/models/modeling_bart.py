@@ -2245,6 +2245,13 @@ class BartEncoder(BartPretrainedModel):
                 visual_feature_dim = 768
             else:
                 raise NotImplementedError
+        else:
+            if self.image_encoder == 'resnext':
+                visual_feature_dim = 2048
+            elif self.image_encoder == 'vit':
+                visual_feature_dim = 768
+            else:
+                raise NotImplementedError
 
         text_feature_dim = embed_dim # 768
 
