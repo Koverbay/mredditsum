@@ -1,6 +1,7 @@
 
 import pytorch_lightning as pl
 import torch
+import pdb
 
 class BaseModel(pl.LightningModule):
 
@@ -14,7 +15,7 @@ class BaseModel(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         # batch
         # src_ids, decoder_ids, mask, label_ids = batch
-        src_ids, mask, label_ids, _ = batch
+        src_ids, mask, label_ids = batch
 
         # get loss
         loss = self(input_ids=src_ids, attention_mask=mask, labels=label_ids)
@@ -108,6 +109,9 @@ class BaseModel(pl.LightningModule):
             if self.args.use_forget_gate:
                 _img_related_para.append(self.model.model.encoder.fg.parameters())
 
+            # if self.args.use_img_trans:
+            #     _img_related_para.append(self.model.model.encoder.img_transformer.parameters())
+
             img_related_para = []
             for params in _img_related_para:
                 for param in params:
@@ -120,11 +124,13 @@ class BaseModel(pl.LightningModule):
                 for q in img_related_para:
                     if p.shape == q.shape:
                         if torch.equal(p, q):
-                            flag = 1
+                            if p.data_ptr() == q.data_ptr():
+                                flag = 1
                 if flag == 0:
                     bart_para.append(p)
                     continue
 
+            # pdb.set_trace()
             optimizer = torch.optim.Adam([
                 {'params': bart_para},
                 {'params': img_related_para, 'lr': self.learning_rate * self.args.img_lr_factor},
