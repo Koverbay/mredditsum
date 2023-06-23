@@ -6,7 +6,62 @@ import re
 import os
 
 def main(args):
-
+    obsolete_thread_ids = [
+        "uvsyb2",
+        "uxo0qu",
+        "rd93qf",
+        "n0nayb"
+        
+        # "ye0bne", #From here,  just weird / random  threadds to throw out to get 100  datapoints
+        # "b8cf0e",
+        # "qlw5xx",
+        # "ckgw7l",
+        # "pdxsyu",
+        # "r5m2qx",
+        # "jnxpq3",
+        # "f1seqh",
+        # "cu82by",
+        # "108clnn",
+        # "n6etrm",
+        # "vjs7n4",
+        # "cdj2pn",
+        # "gpwcqm",
+        # "fcgrks",
+        # "eelbb3",
+        # "pwnk0q",
+        # "xpfwr6",
+        # "qktsa8",
+        # "l9bu1b",
+        # "tmoq6p",
+        # "bazxae",
+        # "sb4o9l",
+        # "wnobep",
+        # "w4egt9",
+        # "eog1zp",
+        # "c0emk2",
+        # "lta2ql",
+        # "tggdho",
+        # "vs1v8o",
+        # "n32z06",
+        # "gba7ij",
+        # "10755ls",
+        # "tj1ooz",
+        # "amf3rx",
+        # "dmlaj1",
+        # "pbg253",
+        # "ixzbug",
+        # "dem8ai",
+        # "kozkb9",
+        # "szvukl",
+        # "uxo0qu",
+        # "arl07y",
+        # "qi0fvl",
+        # "scj7gp",
+        # "vqrpoc",
+        # "p13swy",
+        # "svxinp",
+        # "jqurbo"
+     ]
     write_data = []
     fpath = args.filepath
     
@@ -18,7 +73,8 @@ def main(args):
     threads = data['threads']
 
     task = args.task
-    savefile = args.filepath[:(len(args.filepath)-5)] + f"_{task}.csv"
+    # savefile = args.filepath[:(len(args.filepath)-5)] + f"_{task}.csv"
+    savefile = args.savefile
     # Prepare data for "OP Summarization Task."
     if task == "opsum":
 
@@ -94,6 +150,72 @@ def main(args):
         print("Finished writing!")
 
 
+    if task == "hval":
+        print("Preparing data for human evaluation task...")
+        for thread in threads:
+            if thread['submission_id'] in obsolete_thread_ids:
+                continue
+            comments_html_writable = ""
+            for top_level_comment in thread['comments']:
+                comment_html_writable = '<br/>' + comment_to_html_hval(top_level_comment, 0)
+                comments_html_writable+=(comment_html_writable)
+            
+            write_data.append((thread['submission_id'], thread['url'], thread['caption'], comments_html_writable, thread['sum1'], thread['sum2']))
+            
+        print(f"Writing data to file {savefile}...")
+        with open(savefile, 'w', newline='') as csvfile:
+            fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in write_data[:25]:
+                writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+        
+        # savefile= savefile+"next25"
+
+        # print(f"Writing data to file {savefile}...")
+        # with open(savefile, 'w', newline='') as csvfile:
+        #     fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        #     writer.writeheader()
+        #     for item in write_data[25:50]:
+        #         writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+        # savefile= savefile+"next25"
+        # print(f"Writing data to file {savefile}...")
+        # with open(savefile, 'w', newline='') as csvfile:
+        #     fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        #     writer.writeheader()
+        #     for item in write_data[50:75]:
+        #         writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+        # savefile= savefile+"next25"
+        # print(f"Writing data to file {savefile}...")
+        # with open(savefile, 'w', newline='') as csvfile:
+        #     fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        #     writer.writeheader()
+        #     for item in write_data[75:100]:
+        #         writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+        # savefile= savefile+"next25"
+        # print(f"Writing data to file {savefile}...")
+        # with open(savefile, 'w', newline='') as csvfile:
+        #     fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        #     writer.writeheader()
+        #     for item in write_data[100:125]:
+        #         writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+        # savefile= savefile+"next25"
+        # print(f"Writing data to file {savefile}...")
+        # with open(savefile, 'w', newline='') as csvfile:
+        #     fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        #     writer.writeheader()
+        #     for item in write_data[125:]:
+        #         writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+
+
+
+
+        print("Finished writing!")
             
 def comment_to_html(comment, depth):
     # Add tabs according to depth:
@@ -113,6 +235,27 @@ def comment_to_html(comment, depth):
             html += comment_to_html(reply, depth+1)
             html += '</li>'
         html += '</ul>'
+    return html
+
+def comment_to_html_hval(comment, depth):
+    # Add tabs according to depth:
+    # html = ""
+    
+    # Bolded username
+    html = ""
+    html += '&emsp; '*depth
+    html += '<b>' + comment['author_anon'] + ':</b> '
+    # Sanitized body
+    html += sanitize_comment(comment['body'])
+    # Newline
+    html += '<br/>'
+    if comment["replies"] != []:
+        # html += '<ul>'
+        for reply in comment["replies"]:
+            # html += '<li>'
+            html += comment_to_html_hval(reply, depth+1)
+            # html += '</li>'
+        # html += '</ul>'
     return html
 
 def sanitize_comment(comment):
@@ -141,7 +284,7 @@ def sanitize_comment(comment):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filepath", required=True)
-    # parser.add_argument("-s", "--savefile", required=True)
-    parser.add_argument("-t", "--task", default="opsum", choices=["opsum",  "csum", "fsum"])
+    parser.add_argument("-s", "--savefile", required=True)
+    parser.add_argument("-t", "--task", default="opsum", choices=["opsum",  "csum", "fsum", "hval"])
     args = parser.parse_args()
     main(args)

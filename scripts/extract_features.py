@@ -3,6 +3,7 @@ import torch
 import argparse
 import glob
 from PIL import Image
+import os
 from torch import nn
 from torchvision import transforms
 from torchvision.models import resnet50
@@ -64,6 +65,11 @@ def main(args):
             np.save(filepath, output.to('cpu').squeeze().unsqueeze(0))
 
         if args.model == "vit":
+            done_count=0
+            filepath = f'../cocoapi/images/vit_features_large/{str(int(img_id))}.npy'
+            if os.path.exists(filepath):
+                done_count += 1
+                continue
             inputs = image_processor(images=input_image, return_tensors="pt")['pixel_values'].to('cuda')
             with torch.no_grad():
                 outputs = model(pixel_values=inputs)
@@ -72,12 +78,13 @@ def main(args):
             # pdb.set_trace()
 
             # Save to file
-            filepath = f'../data/image_features/vitb-32/{img_id}.npy'
+            # filepath = f'../data/image_features/test/{img_id}.npy'
+            # filepath = f'../cocoapi/images/vit_features_large/{str(int(img_id))}.npy'
             # filepath = f'/gallery_getty/jaewoo.ahn/multimodal-thread-sum/data/image_features/vitb-32/{img_id}.npy'
             np.save(filepath, output.to('cpu'))
-
-        filepath = f'/gallery_getty/jaewoo.ahn/multimodal-thread-sum/data/image_features/vitb-32/{img_id}.npy'
-        np.save(filepath, output.to('cpu')) #.squeeze().unsqueeze(0))
+    print(f"{done_count} already done")
+        # filepath = f'/gallery_getty/jaewoo.ahn/multimodal-thread-sum/data/image_features/vitb-32/{img_id}.npy'
+        # np.save(filepath, output.to('cpu')) #.squeeze().unsqueeze(0))
 
 
 
