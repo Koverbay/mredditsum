@@ -13,8 +13,8 @@ def main(args):
 
     processed_threads = []
 
-    if (args.prompt == 'imgcap') or (args.prompt == 'oponlyimgcap'):
-        with open('../data/image_captions_blip2_caption_best.json', 'r') as f:
+    if args.use_image_caption:
+        with open('/gallery_tate/keighley.overbay/thread-summarization/data/image_captions_blip2_caption_best.json', 'r') as f:
             imgcaps = json.load(f)
 
     for thread in threads:
@@ -24,7 +24,7 @@ def main(args):
         doc += "Original Post: "
         doc += thread['raw_caption'].replace('\n', ' ').replace('\r', ' ')
 
-        if (args.prompt == 'imgcap') or (args.prompt == 'oponlyimgcap') :
+        if args.use_image_caption:
             sub_id = thread['submission_id']
             doc += f" Image: {imgcaps[sub_id]}."
         doc += args.separator
@@ -38,10 +38,6 @@ def main(args):
                 for cluster_id, comments in thread['clusters_auto'].items():
                     cluster_comments = [comment_id2comments[x] for x in comments['comments']]
                     cluster_id2comments[cluster_id] = ' '.join(cluster_comments)
-                    ### if cluster_id in thread['csums_with_ids'].keys():
-                    ###     doc += " "
-                    ###     doc +=  cluster_id2comments[cluster_id]
-                    ###     doc += args.separator
         if args.generate_mode:
             for cluster_id, comments in cluster_id2comments.items():
                 processed_thread = {}
@@ -58,13 +54,6 @@ def main(args):
                 post_comments_id = '-'.join([thread['submission_id']]+thread['clusters_auto'][cluster_id]['comments'])
                 processed_thread['id'] = f"{post_comments_id}"
                 processed_threads.append(processed_thread)
-        ### processed_thread['document'] = doc
-        ### if (args.prompt == 'oponly') or (args.prompt == 'oponlyimgcap'):
-        ###     processed_thread['summary'] = thread["opsum"].replace('\n',' ').replace('\r', ' ')
-        ### else:
-        ###     processed_thread['summary'] = thread["edited_sum"].replace('\n',' ').replace('\r', ' ')
-        ### processed_thread['id'] = thread["submission_id"]
-        ### processed_threads.append(processed_thread)
 
     with open(savefile, 'w') as f:
         json.dump({"threads": processed_threads}, f, indent=4)
@@ -86,6 +75,7 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--filename', type=str, help="Name of file to filter. Should be a thread json file.")
     parser.add_argument('-s', '--savefile', type=str, help="Name of file to save to. Should be a jsonfile")
     parser.add_argument('-gen', "--generate_mode", action='store_true')
+    parser.add_argument('-imgcap', "--use_image_caption", action='store_true')
 
     args = parser.parse_args()
     main(args)
