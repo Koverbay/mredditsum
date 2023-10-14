@@ -6,7 +6,7 @@ import json
 import colorful as cf
 
 def main(args):
-    filepath = args.f
+    filepath = args.filename
     with open(filepath, 'r') as f:
         data = json.load(f)
     threads = data['threads']
@@ -68,13 +68,13 @@ def main(args):
 
         thread['clusters_auto'] = clusters
 
-    with open(args.s, 'w') as f:
+    with open(args.savefile, 'w') as f:
         json.dump(data, f, indent=4)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', required=True, type=str)
-    parser.add_argument('-s', required=True, type=str)
+    parser.add_argument('-f', '--filename', required=True, type=str)
+    parser.add_argument('-s', '--savefile', required=True, type=str)
     args = parser.parse_args()
     main(args)

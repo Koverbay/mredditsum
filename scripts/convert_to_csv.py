@@ -4,6 +4,7 @@ import csv
 import ftfy
 import re
 import os
+from random import shuffle
 
 def main(args):
     obsolete_thread_ids = [
@@ -149,6 +150,27 @@ def main(args):
 
         print("Finished writing!")
 
+    if task == "rebuttal":
+        print("Preparing data for EMNLP2023 Rebuttal task...")
+        shuffle(threads)
+        for thread in threads[:70]:
+            if thread['submission_id'] in obsolete_thread_ids:
+                continue
+            comments_html_writable = ""
+            for top_level_comment in thread['comments']:
+                comment_html_writable = '<br/>' + comment_to_html_hval(top_level_comment, 0)
+                comments_html_writable+=(comment_html_writable)
+            
+            write_data.append((thread['submission_id'], thread['url'], thread['caption'], comments_html_writable, thread['edited_sum'].replace('\n',' ')))
+            
+        print(f"Writing data to file {savefile}...")
+        with open(savefile, 'w', newline='') as csvfile:
+            fieldnames = ['id', 'image', 'post', 'comments', 'sum']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in write_data:
+                writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum': item[4]})
+
 
     if task == "hval":
         print("Preparing data for human evaluation task...")
@@ -160,7 +182,7 @@ def main(args):
                 comment_html_writable = '<br/>' + comment_to_html_hval(top_level_comment, 0)
                 comments_html_writable+=(comment_html_writable)
             
-            write_data.append((thread['submission_id'], thread['url'], thread['caption'], comments_html_writable, thread['sum1'], thread['sum2']))
+            write_data.append((thread['submission_id'], thread['url'], thread['caption'], comments_html_writable, thread['bart_imgcap_sum'], thread['clusmulsum_bartimgcap_bartimgcap_sum']))
             
         print(f"Writing data to file {savefile}...")
         with open(savefile, 'w', newline='') as csvfile:
@@ -170,47 +192,47 @@ def main(args):
             for item in write_data[:25]:
                 writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
         
-        # savefile= savefile+"next25"
+        savefile= savefile+"next25"
 
-        # print(f"Writing data to file {savefile}...")
-        # with open(savefile, 'w', newline='') as csvfile:
-        #     fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
-        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        #     writer.writeheader()
-        #     for item in write_data[25:50]:
-        #         writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
-        # savefile= savefile+"next25"
-        # print(f"Writing data to file {savefile}...")
-        # with open(savefile, 'w', newline='') as csvfile:
-        #     fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
-        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        #     writer.writeheader()
-        #     for item in write_data[50:75]:
-        #         writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
-        # savefile= savefile+"next25"
-        # print(f"Writing data to file {savefile}...")
-        # with open(savefile, 'w', newline='') as csvfile:
-        #     fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
-        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        #     writer.writeheader()
-        #     for item in write_data[75:100]:
-        #         writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
-        # savefile= savefile+"next25"
-        # print(f"Writing data to file {savefile}...")
-        # with open(savefile, 'w', newline='') as csvfile:
-        #     fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
-        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        #     writer.writeheader()
-        #     for item in write_data[100:125]:
-        #         writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
-        # savefile= savefile+"next25"
-        # print(f"Writing data to file {savefile}...")
-        # with open(savefile, 'w', newline='') as csvfile:
-        #     fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
-        #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        #     writer.writeheader()
-        #     for item in write_data[125:]:
-        #         writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+        print(f"Writing data to file {savefile}...")
+        with open(savefile, 'w', newline='') as csvfile:
+            fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in write_data[25:50]:
+                writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+        savefile= savefile+"next25"
+        print(f"Writing data to file {savefile}...")
+        with open(savefile, 'w', newline='') as csvfile:
+            fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in write_data[50:75]:
+                writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+        savefile= savefile+"next25"
+        print(f"Writing data to file {savefile}...")
+        with open(savefile, 'w', newline='') as csvfile:
+            fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in write_data[75:100]:
+                writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+        savefile= savefile+"next25"
+        print(f"Writing data to file {savefile}...")
+        with open(savefile, 'w', newline='') as csvfile:
+            fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in write_data[100:125]:
+                writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
+        savefile= savefile+"next25"
+        print(f"Writing data to file {savefile}...")
+        with open(savefile, 'w', newline='') as csvfile:
+            fieldnames = ['id', 'image', 'post', 'comments', 'sum1', 'sum2']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for item in write_data[125:]:
+                writer.writerow({'id': item[0], 'image': item[1], 'post': item[2], 'comments': item[3], 'sum1': item[4], 'sum2': item[5]})
 
 
 
@@ -285,6 +307,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filepath", required=True)
     parser.add_argument("-s", "--savefile", required=True)
-    parser.add_argument("-t", "--task", default="opsum", choices=["opsum",  "csum", "fsum", "hval"])
+    parser.add_argument("-t", "--task", default="opsum", choices=["opsum",  "csum", "fsum", "hval", "rebuttal"])
     args = parser.parse_args()
     main(args)

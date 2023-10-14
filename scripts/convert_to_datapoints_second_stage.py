@@ -1,5 +1,6 @@
 import os
 import json
+import pdb
 import argparse
 
 def main(args):
@@ -19,6 +20,7 @@ def main(args):
             words = pred.split()
             cluster_id2pred_first_stage[words[0]] = ' '.join(words[1:])
 
+    # pdb.set_trace()
     processed_threads = []
 
     if args.use_image_caption:
@@ -43,6 +45,7 @@ def main(args):
             csums = []
             for cluster_id, comments in thread['clusters_auto'].items():
                 post_comments_id = '-'.join([thread['submission_id']]+thread['clusters_auto'][cluster_id]['comments'])
+                # pdb.set_trace()
                 csums.append(cluster_id2pred_first_stage[post_comments_id])
         else:
             raise ValueError
