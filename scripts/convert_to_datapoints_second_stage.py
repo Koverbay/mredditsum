@@ -24,7 +24,7 @@ def main(args):
     processed_threads = []
 
     if args.use_image_caption:
-        with open('/gallery_tate/keighley.overbay/thread-summarization/data/image_captions_blip2_caption_best.json', 'r') as f:
+        with open('scripts/image_captions_blip2_caption_best.json', 'r') as f:
             imgcaps = json.load(f)
 
     for thread in threads:
