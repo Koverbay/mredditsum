@@ -139,7 +139,11 @@ do
 
   python scripts/convert_to_txt.py \
       -f "../data/two_stage_summary_text_only_t5_imgcap/${mode}_edited_csums_firststage_generated_processed.json"
+done
 
+for mode in train val test
+do
+  echo $mode
   # generate first-stage summary based on trained model
   python src/run.py \
       -model=text_only_t5 \
