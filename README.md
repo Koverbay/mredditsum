@@ -1,12 +1,35 @@
-# Multimodal Summarization of Reddit Threads
+# mRedditSum
 
-This is the GitHub repository for the paper "mRedditSum: Multimodal Summarization of Reddit Threads", accepted at EMNLP 2023.
+Welcome! 👋🏻\
+This is the official repository of our EMNLP 2023 paper: \
+**[mRedditSum: A Multimodal Abstractive Summarization Dataset of Reddit Threads with Images.](https://openreview.net/forum?id=k3i6PKlKY8)**
 
-Download the dataset here: https://drive.google.com/file/d/1WhOgsEWmLSnEG2-K8R2n_hogFLGPkI8I/view?usp=sharing
+![mredditsum illustration](assets/cover.png)
 
-The data comes preprocessed and ready for training. To reproduce the results of our paper, you can run the models as follows.
+Please cite our work if you found the resources in this repository useful:
+
+```bib
+@inproceedings{overbay2023mredditsum,
+    title={mRedditSum: A Multimodal Abstractive Summarization Dataset of Reddit Threads with Images.},
+    author={Keighley Overbay and Jaewoo Ahn and Fatemeh Pesaran Zadeh and Joonsuk Park and Gunhee Kim},
+    booktitle={EMNLP},
+    year=2023
+}
+```
+
+## Dataset
+
+You can download our mRedditSum dataset directly by clicking this [link](https://drive.google.com/file/d/1WhOgsEWmLSnEG2-K8R2n_hogFLGPkI8I/view?usp=sharing).
+
+The data comes preprocessed and ready for training.
+
+## Model training
+
+To reproduce the results of our paper, you can run the models as follows.
 
 To run the models, use run.py under the src file.
+
+### Text-only models
 
 Example of running regular text-only BART:
 
@@ -42,6 +65,8 @@ python src/run.py \
 ```
 
 See the run.py file for more notes on input arguments.
+
+### ClusMulSum models
 
 For running the ClusMulSum model, there are a few more steps. Run the following:
 TO BE UPDATED SHORTLY...
