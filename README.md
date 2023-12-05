@@ -23,7 +23,7 @@ You can download our mRedditSum dataset directly by clicking this [link](https:/
 
 The data comes preprocessed and ready for training.
 
-## Model training
+## Model Training
 
 To reproduce the results of our paper, you can run the models as follows.
 
@@ -33,7 +33,7 @@ To run the models, use run.py under the src file.
 
 Example of running regular text-only BART:
 
-```
+```python
 python src/run.py \
         -model=text_only_bart \
         -train_src_path=../data/train_processed_src.txt \
@@ -66,7 +66,7 @@ python src/run.py \
 
 See the run.py file for more notes on input arguments.
 
-### ClusMulSum models
+### Our CMS (cluster-based multi-stage summarization) models
 
-For running the ClusMulSum model, there are a few more steps. Run the following:
+For running the CMS model, there are a few more steps. Run the following:
 TO BE UPDATED SHORTLY...
