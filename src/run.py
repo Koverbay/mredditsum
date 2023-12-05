@@ -117,6 +117,7 @@ if __name__ == '__main__':
     parser.add_argument('-max_turn_length', type=int, default=50)
 
     args = parser.parse_args()
+    print(args)
 
     # random seed
     seed_everything(args.random_seed)
@@ -126,6 +127,7 @@ if __name__ == '__main__':
         logger = pl_loggers.TensorBoardLogger(f'./lightning_logs/{args.log_name}')
         checkpoint_callback = ModelCheckpoint(monitor='validation_Rouge2_one_epoch',
                                               save_last=None,
+                                              save_weights_only=True,
                                               save_top_k=1,
                                               mode='max',)
     else:
@@ -133,6 +135,7 @@ if __name__ == '__main__':
         checkpoint_callback = ModelCheckpoint(monitor='validation_Rouge2_one_epoch',
                                               dirpath=os.path.join(args.output_dir, args.log_name),
                                               save_last=None,
+                                              save_weights_only=True,
                                               save_top_k=1,
                                               mode='max',)
 
@@ -187,5 +190,12 @@ if __name__ == '__main__':
     if args.do_train == 'True':
         trainer.fit(model, train_dataloaders=summary_data.train_loader, val_dataloaders=summary_data.val_loader)
     if args.do_test == 'True':
-        model = model.load_from_checkpoint(args.checkpoint, args=args)
+        if args.checkpoint is not None:
+            model = model.load_from_checkpoint(args.checkpoint, args=args)
+        else:
+            checkpoint_dir = os.path.join(args.output_dir, args.log_name)
+            ckpt_file = [x for x in os.listdir(checkpoint_dir) if 'epoch=' in x]
+            assert len(ckpt_file) == 1
+            print(f'Loading {os.path.join(checkpoint_dir, ckpt_file[0])}...')
+            model = model.load_from_checkpoint(os.path.join(checkpoint_dir, ckpt_file[0]), args=args)
         trainer.test(model=model, dataloaders=summary_data.test_loader)

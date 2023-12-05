@@ -74,6 +74,9 @@ class BartMultiModal(BaseModel):
             summary += one_summary
             reference += one_reference
             total_data_ids += data_ids
+        if '' in summary:
+            print(f'Detect blank pred summary...')
+            summary = [x if x != '' else ' ' for x in summary]
         avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, self.rouge)
         self.log('validation_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('validation_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
@@ -115,6 +118,9 @@ class BartMultiModal(BaseModel):
             summary += one_summary
             reference += one_reference
             total_data_ids += data_ids
+        if '' in summary:
+            print(f'Detect blank pred summary...')
+            summary = [x if x != '' else ' ' for x in summary]
         avg_rouge1, avg_rouge2, avg_rougeL = self.calrouge(summary, reference, self.rouge)
         self.log('test_Rouge1_one_epoch', avg_rouge1, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log('test_Rouge2_one_epoch', avg_rouge2, on_epoch=True, prog_bar=True, sync_dist=True)
