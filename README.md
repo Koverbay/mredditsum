@@ -2,7 +2,7 @@
 
 Welcome! 👋🏻\
 This is the official repository of our EMNLP 2023 paper: \
-**[mRedditSum: A Multimodal Abstractive Summarization Dataset of Reddit Threads with Images.](https://openreview.net/forum?id=k3i6PKlKY8)**
+**[mRedditSum: A Multimodal Abstractive Summarization Dataset of Reddit Threads with Images.](https://aclanthology.org/2023.emnlp-main.251/)**
 
 ![mredditsum illustration](assets/cover.png)
 
